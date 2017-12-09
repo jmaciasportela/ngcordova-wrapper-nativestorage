@@ -51,6 +51,18 @@ angular.module("ngCordova.plugins.nativeStorage", [])
     }
   };
 
+  function getKeysFromLocalStorage(success, error) {
+    try {
+      var keys = [];
+      for (var i = 0; i < $window.localStorage.length; ++i) {
+        keys.push(localStorage.key(i));
+      }
+      success(keys);
+    } catch (err) {
+      error(err); 
+    }
+  };
+
   return {
     remove: function(reference) {
       var q = $q.defer();
@@ -76,6 +88,15 @@ angular.module("ngCordova.plugins.nativeStorage", [])
         getFromLocalStorage(reference, function(result) {q.resolve(result);}, function(error) {q.reject(error);});
       } else {
         NativeStorage.getItem(reference, function(result) {q.resolve(result);}, function(error) {q.reject(error);});
+      }
+      return q.promise;
+    },
+    getKeys: function() {
+      var q = $q.defer();
+      if (isInBrowser()) {
+        getKeysFromLocalStorage(function(result) {q.resolve(result);}, function(error) {q.reject(error);});
+      } else {
+        NativeStorage.keys(function(result) {q.resolve(result);}, function(error) {q.reject(error);});
       }
       return q.promise;
     },
